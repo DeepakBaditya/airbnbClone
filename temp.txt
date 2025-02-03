@@ -1,5 +1,0 @@
-git remote add origin https://github.com/DeepakBaditya/airbnbClone.gi
-git config --global --add safe.directory G:/apnaCollege/mongoExpressReal/mongoExpressPro
-git config --global core.autocrlf true
-git rm --cached -r .
-git add .
