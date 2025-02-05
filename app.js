@@ -7,6 +7,7 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const wrapasync = require("./utils/wrapAsync.js")
 const ExpressError = require("./utils/ExpressError.js")
+const { listingSchema } = require("./schema.js");
 
 app.use(express.urlencoded({extended : true}));
 app.use(express.static(path.join(__dirname,"public")));
@@ -29,6 +30,17 @@ app.listen(8080,()=>{
     console.log("app is listening on 8080")
 });
 
+// Middleware to validate the listing
+const validateListing = (req,res,next)=>{
+    let {error} = listingSchema.validate(req.body);
+    if(error){
+        let errMsg = error.details.map(el => el.message).join(",");
+        throw new ExpressError(400, errMsg);
+    }else{
+        next();
+    }
+};
+
 app.get("/", (req, res) => {
     res.send("Root is working");
 })
@@ -49,7 +61,7 @@ app.get("/testListing",wrapasync(async (req,res)=>{
         country : "india",
     });
     await sampleListing.save()
-    console.log("Smaple was saved");
+    console.log("Sample was saved");
     res.send("Successful testing");
 }))
 app.get("/listings/new",(req,res)=>{
@@ -57,18 +69,15 @@ app.get("/listings/new",(req,res)=>{
 })
 
 // SHOW route
-app.get("/listings/:id",async (req,res)=>{
+app.get("/listings/:id", wrapasync(async (req,res)=>{
     let {id} = req.params;
     let listing = await Listing.findById(id);
     res.render("listings/show.ejs",{ listing });
     
-})
+}))
 
 // CREATE route
-app.post("/listings",wrapasync(async (req,res,next)=>{
-    if(!req.body.listing){
-        throw new ExpressError(400,"sent valid data for listing");
-    }
+app.post("/listings",validateListing,wrapasync(async (req,res,next)=>{
     const newListing = new Listing(req.body.listing)
     await newListing.save()
     res.redirect("listings");
@@ -91,7 +100,7 @@ app.get("/listings/:id/edit",wrapasync(async (req,res)=>{
 }))
 
 // UPDATE route
-app.put("/listings/:id/", wrapasync(async (req, res) => {
+app.put("/listings/:id/",validateListing, wrapasync(async (req, res) => {
     if (!req.body.listing) {
         throw new ExpressError(400, "Please provide valid data for the listing.");
     }
