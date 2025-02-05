@@ -19,7 +19,7 @@
         </div>
         <div class="btns">
             <a class="btn btn-dark col-1 offset-3 edit-btn" href="/listings/<%= listing._id %>/edit">Edit</a>
-            <form method="post" action="/listings/<%= listing._id %>?_method=DELETE">
+            <form style="display: inline-block;" method="post" action="/listings/<%= listing._id %>?_method=DELETE">
                 <button class="btn btn-dark offset-2">Delete</button>
                 <!-- <button style="color: #fff;background-color: #000;border-radius: 12px;padding: 5px;margin-top: 10px;height: 40px;width: 85px;">Delete</button> -->
             </form>
